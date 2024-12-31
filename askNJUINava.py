@@ -2,37 +2,73 @@
 
 import boto3
 import streamlit as st
+from time import sleep
+import watchtower
+from datetime import datetime
+
+
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 bedrockClient = boto3.client("bedrock-agent-runtime", "us-east-1")
 
 
-def get_answers(questions, knowledge_base_id):
-    try:
-        knowledge_base_response = bedrockClient.retrieve_and_generate(
-            input={"text": questions},
-            retrieveAndGenerateConfiguration={
-                "knowledgeBaseConfiguration": {
-                    "knowledgeBaseId": knowledge_base_id,
-                    "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0",
+def get_answers(questions, knowledge_base_id, max_retries=3, retry_delay=2):
+    """
+    Retrieve answers from a knowledge base using the Bedrock Client.
+
+    Parameters:
+        questions (str): The input questions for the knowledge base.
+        knowledge_base_id (str): The ID of the knowledge base to query.
+        max_retries (int): Maximum number of retries for throttling errors. Default is 3.
+        retry_delay (int): Delay in seconds between retries. Default is 2.
+
+    Returns:
+        dict: Response from the knowledge base or an empty dictionary in case of an error.
+    """
+    for attempt in range(max_retries):
+        try:
+            logger.info(
+                f"Attempt {attempt + 1}: Querying knowledge base with ID '{knowledge_base_id}'."
+            )
+            knowledge_base_response = bedrockClient.retrieve_and_generate(
+                input={"text": questions},
+                retrieveAndGenerateConfiguration={
+                    "knowledgeBaseConfiguration": {
+                        "knowledgeBaseId": knowledge_base_id,
+                        "modelArn": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0",
+                    },
+                    "type": "KNOWLEDGE_BASE",
                 },
-                "type": "KNOWLEDGE_BASE",
-            },
-        )
-        return knowledge_base_response
-    except bedrockClient.exceptions.ThrottlingException:
-        st.error("We’re receiving too many requests. Please try again later.")
-        return {}
-    except Exception as e:
-        st.error(f"Error retrieving answer: {str(e)}")
-        return {}
+            )
+            return knowledge_base_response
+        except bedrockClient.exceptions.ThrottlingException as e:
+            logger.warning(
+                f"ThrottlingException encountered on attempt {attempt + 1}. Retrying..."
+            )
+            logger.info(f"Error message: {str(e)}")
+            if attempt < max_retries - 1:
+                sleep(retry_delay)
+            else:
+                st.error("We’re receiving too many requests. Please try again later.")
+                return {}
+        except Exception as e:
+            logger.error(f"An error occurred: {str(e)}")
+            st.error(f"Error retrieving answer: {str(e)}")
+            return {}
+    return {}
 
 
-def run_askNJUINava(knowledge_base_id, title):
+def run_askNJUINava(knowledge_base_id, title, cloudwatch_handler):
     """
     This function runs the main app to interact with the Bedrock RAG.
     Call it from `main.py` after the user is authenticated.
     """
     st.subheader(title, divider="blue")
+
+    logger.addHandler(cloudwatch_handler)
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []

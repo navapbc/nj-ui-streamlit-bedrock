@@ -2,6 +2,8 @@ import streamlit as st
 import boto3
 import json
 from askNJUINava import run_askNJUINava
+import watchtower
+from datetime import datetime
 
 secret_name = "bedrock_api"
 region_name = "us-east-1"
@@ -9,6 +11,11 @@ region_name = "us-east-1"
 title = "NJ UI Confluence Chat"
 st.set_page_config(page_title=title, page_icon=None)
 st.sidebar.title(title)
+
+cloudwatch_handler = watchtower.CloudWatchLogHandler(
+    log_group="nj-ui-ec2-streamlit-bedrock",
+    stream_name=f"app-logs-{datetime.now().strftime('%Y%m%d')}",
+)
 
 
 def show_header():
@@ -56,7 +63,7 @@ def main():
                 st.session_state.chat_history.clear()
                 st.rerun()
         # User is authenticated, now run Q&A app
-        run_askNJUINava(st.session_state["kb"], title)
+        run_askNJUINava(st.session_state["kb"], title, cloudwatch_handler)
 
 
 if __name__ == "__main__":
