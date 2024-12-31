@@ -12,8 +12,10 @@ title = "NJ UI Confluence Chat"
 st.set_page_config(page_title=title, page_icon=None)
 st.sidebar.title(title)
 
+cloudwatch_client = boto3.client("logs", region_name=region_name)
+
 cloudwatch_handler = watchtower.CloudWatchLogHandler(
-    boto3_session=boto3.Session(region_name=region_name),
+    boto3_session=cloudwatch_client,
     log_group="nj-ui-ec2-streamlit-bedrock",
     stream_name=f"app-logs-{datetime.now().strftime('%Y%m%d')}",
 )
