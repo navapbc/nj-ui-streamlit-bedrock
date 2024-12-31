@@ -70,7 +70,6 @@ def run_askNJUINava(knowledge_base_id):
                     # context = ref['content']['text']
                     doc_url = ref["location"]["confluenceLocation"]["url"]
 
-                    # st.markdown(f"<span style='color:#FFDA33'>Context used: </span>{context}", unsafe_allow_html=True)
                     st.markdown(
                         f"<span style='color:#FFDA33'>Source Document: </span>{doc_url}",
                         unsafe_allow_html=True,

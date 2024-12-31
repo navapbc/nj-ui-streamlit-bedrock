@@ -6,6 +6,10 @@ from askNJUINava import run_askNJUINava
 secret_name = "bedrock_api"
 region_name = "us-east-1"
 
+title = "NJ UI Confluence Chat"
+st.set_page_config(page_title=title, page_icon=None)
+st.sidebar.title(title)
+
 
 def show_header():
     st.title("NJ UI RAG LLM")
@@ -40,13 +44,11 @@ def main():
         st.session_state["kb"] = None
 
     if not st.session_state["logged_in"]:
-        st.sidebar.title("NJ UI RAG LLM")
         password, kb = get_secrets(secret_name, region_name)
         st.session_state["kb"] = kb
         login_page(password)
     else:
         with st.sidebar:
-            st.title("NJ UI RAG LLM")
             if st.button("Logout"):
                 st.session_state["logged_in"] = False
                 st.rerun()

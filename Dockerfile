@@ -16,7 +16,7 @@ COPY . .
 # Expose the port that Streamlit will run on (default is 8501)
 EXPOSE 8501
 
-ENV AWS_PROFILE=christopher-nava
+ENV AWS_PROFILE=chris_llm
 
 # The command that starts your Streamlit application
 CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]
