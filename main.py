@@ -12,7 +12,7 @@ st.sidebar.title(title)
 
 
 def show_header():
-    st.title("NJ UI RAG LLM")
+    st.title(title)
 
 
 def get_secrets(secret, region):
