@@ -13,6 +13,7 @@ st.set_page_config(page_title=title, page_icon=None)
 st.sidebar.title(title)
 
 cloudwatch_handler = watchtower.CloudWatchLogHandler(
+    boto3_session=boto3.Session(region_name=region_name),
     log_group="nj-ui-ec2-streamlit-bedrock",
     stream_name=f"app-logs-{datetime.now().strftime('%Y%m%d')}",
 )
