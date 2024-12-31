@@ -56,7 +56,7 @@ def main():
                 st.session_state.chat_history.clear()
                 st.rerun()
         # User is authenticated, now run Q&A app
-        run_askNJUINava(st.session_state["kb"])
+        run_askNJUINava(st.session_state["kb"], title)
 
 
 if __name__ == "__main__":

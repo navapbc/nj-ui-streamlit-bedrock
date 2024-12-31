@@ -27,12 +27,12 @@ def get_answers(questions, knowledge_base_id):
         return {}
 
 
-def run_askNJUINava(knowledge_base_id):
+def run_askNJUINava(knowledge_base_id, title):
     """
     This function runs the main app to interact with the Bedrock RAG.
     Call it from `main.py` after the user is authenticated.
     """
-    st.subheader("NJ UI RAG using Amazon Bedrock", divider="blue")
+    st.subheader(title, divider="blue")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
